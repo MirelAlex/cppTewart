@@ -23,6 +23,7 @@ add_executable(raylib_imgui_implot
     implot_demo.cpp
     implot_items.cpp
     rlImGui.cpp
+    stewart_platform.cpp
 )
 
 # Include directories

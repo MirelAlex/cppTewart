@@ -17,11 +17,13 @@
 #include "imgui.h"
 #include "implot.h"
 #include "rlImGui.h"
+#include "rlImGui.h"
+#include "stewart_platform.h"
 #include <cstdio>
 void Demo_LinePlots();
 void Demo_DigitalPlots();
 
-
+bool locked = false;
 // utility structure for realtime plot
 struct ScrollingBuffer {
     int MaxSize;
@@ -54,32 +56,63 @@ int main(int argc, char* argv[])
 	//--------------------------------------------------------------------------------------
 	int screenWidth = 1280;
 	int screenHeight = 800;
-    // int   bar_data[11] = {0,1,2,3,4,5,6,7,8,9,10};
-    // float x_data[10] =  {0,1,2,3,4,5,6,7,8,9};
-    // float y_data[10] =  {0,1,2,3,4,5,6,7,8,9};
+
+    // Define the camera to look into our 3d world
+    Camera3D camera = { 0 };
+    camera.position = (Vector3){ 10.0f, 10.0f, 10.0f }; // Camera position
+    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+    camera.fovy = 45.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+
+    Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
+
+
     // FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
-	SetConfigFlags( FLAG_WINDOW_RESIZABLE);
-	InitWindow(screenWidth, screenHeight, "raylib-Extras [ImGui] example - simple ImGui Demo");
+	SetConfigFlags( FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
+	InitWindow(screenWidth, screenHeight, "c++Tewart Platform Simulation");
 	SetTargetFPS(60);
 	rlImGuiSetup(true);
     ImPlot::CreateContext();
-	// Main game loop
+
+    DisableCursor();                    // Limit cursor to relative movement inside the window
+	InitStewart(&stewartPlatform);
+    InitAnimation(&ANIM);
+    // Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
-		BeginDrawing();
-		ClearBackground(DARKGRAY);
+        if (!locked){
+            UpdateCamera(&camera, CAMERA_FREE);
+        }
+        if (IsKeyPressed('L')) locked = !locked;
 
-		// start ImGui Conent
-		rlImGuiBegin();
+        if (IsKeyPressed('Z')) camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
 
-            // show ImGui Content
-            bool open = true;
-            ImGui::ShowDemoWindow(&open);
-            Demo_LinePlots();
-            Demo_DigitalPlots();
-		// end ImGui Content
-		rlImGuiEnd();
+        RunAnimation();
 
+        UpdateStewart(THIS.translation, THIS.orientation);
+
+        BeginDrawing();
+            ClearBackground(RAYWHITE);
+
+            BeginMode3D(camera);
+                // Draw frame on base platform
+                _drawFrame(BASE.pos);
+                // Draw stewart platform + platform plate
+                DrawStewart();
+                DrawGrid(50, 1.0f);
+            EndMode3D();
+            IncrAnimationTime();
+            DrawText("Stewart Platform Simulation", 10, 10, 20, BLACK);
+            // start ImGui Content
+            rlImGuiBegin();
+                // show ImGui Content
+                bool open = true;
+                ImGui::ShowDemoWindow(&open);
+                // Demo_LinePlots();
+                // Demo_DigitalPlots();
+            // end ImGui Content
+            rlImGuiEnd();
 		EndDrawing();
 		//----------------------------------------------------------------------------------
 	}

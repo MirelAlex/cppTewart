@@ -100,6 +100,7 @@ Index of this file:
 #endif
 
 #include "imgui.h"
+#include "implot.h"
 #ifndef IMGUI_DISABLE
 
 // System includes
@@ -200,6 +201,7 @@ static void ShowExampleAppConsole(bool* p_open);
 static void ShowExampleAppCustomRendering(bool* p_open);
 static void ShowExampleAppDocuments(bool* p_open);
 static void ShowExampleAppLog(bool* p_open);
+static void ShowExampleAppPlot(bool* p_open);
 static void ShowExampleAppLayout(bool* p_open);
 static void ShowExampleAppPropertyEditor(bool* p_open);
 static void ShowExampleAppSimpleOverlay(bool* p_open);
@@ -275,6 +277,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     static bool show_app_custom_rendering = false;
     static bool show_app_documents = false;
     static bool show_app_log = false;
+    static bool show_app_plot = false;
     static bool show_app_layout = false;
     static bool show_app_property_editor = false;
     static bool show_app_simple_overlay = false;
@@ -289,6 +292,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     if (show_app_console)             ShowExampleAppConsole(&show_app_console);
     if (show_app_custom_rendering)    ShowExampleAppCustomRendering(&show_app_custom_rendering);
     if (show_app_log)                 ShowExampleAppLog(&show_app_log);
+    if (show_app_plot)                ShowExampleAppPlot(&show_app_plot);
     if (show_app_layout)              ShowExampleAppLayout(&show_app_layout);
     if (show_app_property_editor)     ShowExampleAppPropertyEditor(&show_app_property_editor);
     if (show_app_simple_overlay)      ShowExampleAppSimpleOverlay(&show_app_simple_overlay);
@@ -385,6 +389,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
             ImGui::MenuItem("Custom rendering", NULL, &show_app_custom_rendering);
             ImGui::MenuItem("Documents", NULL, &show_app_documents);
             ImGui::MenuItem("Log", NULL, &show_app_log);
+            ImGui::MenuItem("Plot", NULL, &show_app_plot);
             ImGui::MenuItem("Property editor", NULL, &show_app_property_editor);
             ImGui::MenuItem("Simple layout", NULL, &show_app_layout);
             ImGui::MenuItem("Simple overlay", NULL, &show_app_simple_overlay);
@@ -7658,6 +7663,108 @@ static void ShowExampleAppLog(bool* p_open)
     log.Draw("Example: Log", p_open);
 }
 
+// Demonstrate creating a simple plot window.
+static void ShowExampleAppPlot(bool* p_open)
+{
+    ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
+    if (ImGui::Begin("Example: Plot", p_open, ImGuiWindowFlags_MenuBar))
+    {
+        IMGUI_DEMO_MARKER("Examples/Plot");
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("File"))
+            {
+                if (ImGui::MenuItem("Close", "Ctrl+W")) { *p_open = false; }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+
+        // // Left
+        // static int selected = 0;
+        // {
+        //     ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+        //     for (int i = 0; i < 100; i++)
+        //     {
+        //         // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
+        //         char label[128];
+        //         sprintf(label, "MyObject %d", i);
+        //         if (ImGui::Selectable(label, selected == i))
+        //             selected = i;
+        //     }
+        //     ImGui::EndChild();
+        // }
+        // ImGui::SameLine();
+
+        // // Right
+        // {
+        //     ImGui::BeginGroup();
+        //     ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+        //     ImGui::Text("MyObject: %d", selected);
+        //     ImGui::Separator();
+        //     if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+        //     {
+        //         if (ImGui::BeginTabItem("Description"))
+        //         {
+        //             ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
+        //             ImGui::EndTabItem();
+        //         }
+        //         if (ImGui::BeginTabItem("Details"))
+        //         {
+        //             ImGui::Text("ID: 0123456789");
+        //             ImGui::EndTabItem();
+        //         }
+        //         ImGui::EndTabBar();
+        //     }
+        //     ImGui::EndChild();
+        //     if (ImGui::Button("Revert")) {}
+        //     ImGui::SameLine();
+        //     if (ImGui::Button("Save")) {}
+        //     ImGui::EndGroup();
+        // }
+        {
+            static float xs1[1001], ys1[1001];
+            for (int i = 0; i < 1001; ++i) {
+                xs1[i] = i * 0.001f;
+                ys1[i] = 0.5f + 0.5f * sinf(50 * (xs1[i] + (float)ImGui::GetTime() / 10));
+            }
+            static double xs2[20], ys2[20];
+            for (int i = 0; i < 20; ++i) {
+                xs2[i] = i * 1/19.0f;
+                ys2[i] = xs2[i] * xs2[i];
+            }
+            if (ImPlot::BeginPlot("Line Plots")) {
+                ImPlot::SetupAxes("x","y");
+                ImPlot::PlotLine("f(x)", xs1, ys1, 1001);
+                ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+                ImPlot::PlotLine("g(x)", xs2, ys2, 20,ImPlotLineFlags_Segments);
+                ImPlot::EndPlot();
+            }
+        }
+        // ImGui::SameLine();
+        {
+            static float xs1[1001], ys1[1001];
+            for (int i = 0; i < 1001; ++i) {
+                xs1[i] = i * 0.001f;
+                ys1[i] = 1.5f + 0.5f * sinf(50 * (xs1[i] + (float)ImGui::GetTime() / 100));
+            }
+            static double xs2[20], ys2[20];
+            for (int i = 0; i < 20; ++i) {
+                xs2[i] = i * 1/19.0f;
+                ys2[i] = xs2[i] * xs2[i];
+            }
+            if (ImPlot::BeginPlot("Line Plots 1")) {
+                ImPlot::SetupAxes("x","y");
+                ImPlot::PlotLine("f(x)", xs1, ys1, 1001);
+                ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+                ImPlot::PlotLine("g(x)", xs2, ys2, 20,ImPlotLineFlags_Segments);
+                ImPlot::EndPlot();
+            }
+        }
+    }
+    ImGui::End();
+}
+
 //-----------------------------------------------------------------------------
 // [SECTION] Example App: Simple Layout / ShowExampleAppLayout()
 //-----------------------------------------------------------------------------
@@ -8036,6 +8143,29 @@ static void ShowExampleAppSimpleOverlay(bool* p_open)
         ImGui::Separator();
         if (ImGui::IsMousePosValid())
             ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+            static float xs1[1001], ys1[1001];
+            static float ys4[1001], ys3[1001];
+            for (int i = 0; i < 1001; ++i) {
+                xs1[i] = i * 0.001f;
+                ys1[i] = 0.5f + 0.5f * sinf(50 * (xs1[i] + (float)ImGui::GetTime() / 10));
+                ys3[i] = 0.5f + 0.5f * cosf(50 * (xs1[i] + (float)ImGui::GetTime() / 10));
+                ys4[i] = 0.5f + 1.5f * sinf(50 * (xs1[i] + (float)ImGui::GetTime() / 10));
+            }
+            static double xs2[20], ys2[20];
+            for (int i = 0; i < 20; ++i) {
+                xs2[i] = i * 1/19.0f;
+                ys2[i] = xs2[i] * xs2[i];
+            }
+            if (ImPlot::BeginPlot("Line Plots", ImVec2(400,400))) {
+                ImPlot::SetupAxes("x","y");
+                ImPlot::PlotLine("f(x)", xs1, ys1, 1001);
+                ImPlot::PlotLine("h(x)", xs1, ys3, 1001);
+                ImPlot::PlotLine("j(x)", xs1, ys4, 1001);
+                ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+                ImPlot::PlotLine("g(x)", xs2, ys2, 20,ImPlotLineFlags_Segments);
+                ImPlot::EndPlot();
+            }
+
         else
             ImGui::Text("Mouse Position: <invalid>");
         if (ImGui::BeginPopupContextWindow())
