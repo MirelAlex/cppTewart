@@ -363,4 +363,5 @@ void DrawStewart();
 
 void IncrAnimationTime();
 
+void getCurrentServoAngles(float *angles, int count);
 #endif

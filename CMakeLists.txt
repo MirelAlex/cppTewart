@@ -26,6 +26,7 @@ add_executable(raylib_imgui_implot
     stewart_platform.cpp
     animation.cpp
     stewart_gui.cpp
+    stewart_plots.cpp
 )
 
 # Include directories

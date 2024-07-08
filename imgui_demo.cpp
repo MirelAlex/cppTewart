@@ -8156,7 +8156,7 @@ static void ShowExampleAppSimpleOverlay(bool* p_open)
                 xs2[i] = i * 1/19.0f;
                 ys2[i] = xs2[i] * xs2[i];
             }
-            if (ImPlot::BeginPlot("Line Plots", ImVec2(400,400))) {
+            if (ImPlot::BeginPlot("Line Plots", ImVec2(800,-1))) {
                 ImPlot::SetupAxes("x","y");
                 ImPlot::PlotLine("f(x)", xs1, ys1, 1001);
                 ImPlot::PlotLine("h(x)", xs1, ys3, 1001);

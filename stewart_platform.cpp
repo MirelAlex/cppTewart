@@ -14,6 +14,8 @@
 #include <cmath>
 #include "raymath.h"
 #include "rlgl.h"
+#include "imgui.h"
+
 
 cTewart stewartPlatform;
 Animation1 animation;
@@ -153,7 +155,11 @@ void UpdateStewart(Vector3 translation, Quaternion orientation){
         THIS.H[i].x = THIS.B[i].x + THIS.hornLength * cosAlpha * THIS.cosBeta[i];
         THIS.H[i].y = THIS.B[i].y + THIS.hornLength * sinAlpha;
         THIS.H[i].z = THIS.B[i].z + THIS.hornLength * cosAlpha * THIS.sinBeta[i];
+        // get current servo angle
+        THIS.legs[i].angle = asinf((THIS.H[i].y - THIS.B[i].y) / THIS.hornLength) * RAD2DEG;
+
     }
+    // getServoAngles();
 
 }
 
@@ -350,11 +356,11 @@ void RunAnimation(){
 
 // }
 
-void getServoAngles(){
-    for (size_t i = 0; i < 6; i++)
+void getCurrentServoAngles(float* angles, int count){
+    for (size_t i = 0; i < count; i++)
     {
         // TODO: maybe move angle somewhere else?
-        THIS.legs[i].angle = asinf((THIS.H[i].y - THIS.B[i].y) / THIS.hornLength) * RAD2DEG;
+        angles[i] = THIS.legs[i].angle;
         // TODO: limit the servo angle to a servo range
         // printf("[%d] %.2f\n",i, RAD2DEG * THIS.legs[i].angle );
     }
