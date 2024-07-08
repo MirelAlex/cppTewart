@@ -1,1 +1,1 @@
-Simple example with raylib + imgui + implot
+Stewart Platform simulation implemented using raylib + imgui + implot
