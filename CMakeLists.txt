@@ -24,6 +24,8 @@ add_executable(raylib_imgui_implot
     implot_items.cpp
     rlImGui.cpp
     stewart_platform.cpp
+    animation.cpp
+    stewart_gui.cpp
 )
 
 # Include directories
@@ -31,8 +33,8 @@ target_include_directories(raylib_imgui_implot PRIVATE ${RAYLIB_DIR}/src)
 target_include_directories(raylib_imgui_implot PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 # Link raylib library
-# target_link_libraries(raylib_imgui_implot PRIVATE ${RAYLIB_DIR}/src/libraylib.a)
-target_link_libraries(raylib_imgui_implot PRIVATE raylib opengl32 winmm gdi32)
+target_link_libraries(raylib_imgui_implot PRIVATE ${RAYLIB_DIR}/src/libraylib.a)
+target_link_libraries(raylib_imgui_implot PRIVATE opengl32 winmm gdi32)
 
 # Set the output directory for the executable
 set_target_properties(raylib_imgui_implot PROPERTIES

@@ -1,187 +1,3 @@
-// #include "raylib.h"
-// #include <cmath> // For sqrtf and powf functions
-
-// struct Legs {
-//     Vector3 baseJoint;
-//     Vector3 platformJoint;
-//     float motorRot;
-//     float angle;
-// };
-
-// struct Base {
-//     Vector3 pos;
-//     float radius;
-//     float shaftDistance;
-// };
-
-// struct Platform {
-//     Vector3 pos;
-//     float radius;
-//     float anchorDistance;
-// };
-
-// const Vector3 zero_vec = {0.0f, 0.0f, 0.0f};
-// const Quaternion zero_qua = {0.0f, 0.0f, 0.0f, 1.0f};
-
-// class StewartPlatform {
-// public:
-//     StewartPlatform();
-//     virtual ~StewartPlatform() = default;
-
-//     void init();
-//     void update(const Vector3& translation, const Quaternion& orientation);
-//     void draw();
-
-// protected:
-//     Vector3 translation;
-//     Quaternion orientation;
-
-//     Vector3 pos;
-//     float legsLength;
-//     float hornLength;
-//     float rodLength;
-//     Vector3 B[6];
-//     Vector3 P[6];
-//     Vector3 q[6];
-//     Vector3 l[6];
-//     Vector3 H[6];
-//     Vector3 T0;
-//     float sinBeta[6];
-//     float cosBeta[6];
-//     Legs legs[6];
-//     Base base;
-//     Platform plat;
-
-//     virtual void getLegs() = 0;
-//     virtual void drawBasePlate() = 0;
-//     virtual void drawPlatformPlate() = 0;
-//     virtual void initPlatform() = 0;
-
-//     void drawCone(float radius, float h);
-//     void drawFrame();
-// };
-
-// StewartPlatform::StewartPlatform()
-//     :   pos(zero_vec),
-//         translation(zero_vec),
-//         orientation(zero_qua),
-//         legsLength(3.0f),
-//         hornLength(5.0f),
-//         rodLength(13.0f),
-//         T0(zero_vec),
-//         sinBeta{0}, cosBeta{0},
-//         base({zero_vec, 8.0f, 2.0f / 8.0f}),
-//         plat({zero_vec, 5.0f, 2.0f / 8.0f}) {
-
-//     for (size_t i = 0; i < 6; ++i) {
-//         legs[i] = {zero_vec, zero_vec, 0.0f, 0.0f};
-//         B[i] = zero_vec;
-//         P[i] = zero_vec;
-//         q[i] = zero_vec;
-//         l[i] = zero_vec;
-//         H[i] = zero_vec;
-//     }
-// }
-
-// void StewartPlatform::init() {
-//     initParameters();
-//     getLegs();
-
-//     for (size_t i = 0; i < 6; i++) {
-//         B[i] = legs[i].baseJoint;
-//         P[i] = legs[i].platformJoint;
-//         sinBeta[i] = sin(legs[i].motorRot);
-//         cosBeta[i] = cos(legs[i].motorRot);
-//         q[i] = zero_vec;
-//         l[i] = zero_vec;
-//         H[i] = zero_vec;
-//     }
-
-//     calcT0();
-// }
-
-// void StewartPlatform::update() {
-//     // Common update functionality
-//     // Update logic here
-// }
-
-// void StewartPlatform::getLegs() {
-//     // Implement the logic to get the legs here
-// }
-
-// void StewartPlatform::calcT0() {
-//     T0 = (Vector3){
-//         0.0f,
-//         sqrtf(rodLength * rodLength + hornLength * hornLength
-//               - powf(P[0].x - B[0].x, 2)
-//               - powf(P[0].z - B[0].z, 2)),
-//         0.0f
-//     };
-// }
-
-// // CircularStewartPlatform class
-// class CircularStewartPlatform : public StewartPlatform {
-// public:
-//     CircularStewartPlatform() : StewartPlatform() {}
-
-//     void initParameters() override;
-// };
-
-// void CircularStewartPlatform::initParameters() {
-//     // Specific initialization logic for circular platform
-//     pos = zero_vec;
-//     translation = zero_vec;
-//     orientation = zero_qua;
-//     legsLength = 3.0f;
-//     hornLength = 5.0f;
-//     rodLength = 13.0f;
-
-//     for (size_t i = 0; i < 6; ++i) {
-//         legs[i] = {zero_vec, zero_vec, 0.0f, 0.0f};
-//         B[i] = zero_vec;
-//         P[i] = zero_vec;
-//         q[i] = zero_vec;
-//         l[i] = zero_vec;
-//         H[i] = zero_vec;
-//         sinBeta[i] = 0.0f;
-//         cosBeta[i] = 0.0f;
-//     }
-
-//     base = {{0.0f, 0.0f, 0.0f}, 8.0f, 2.0f / 8.0f};
-//     plat = {{0.0f, 0.0f, 0.0f}, 5.0f, 2.0f / 8.0f};
-// }
-
-// // HexagonalStewartPlatform class
-// class HexagonalStewartPlatform : public StewartPlatform {
-// public:
-//     HexagonalStewartPlatform() : StewartPlatform() {}
-
-//     void initParameters() override;
-// };
-
-// void HexagonalStewartPlatform::initParameters() {
-//     // Specific initialization logic for hexagonal platform
-//     pos = zero_vec;
-//     translation = zero_vec;
-//     orientation = zero_qua;
-//     legsLength = 3.0f;
-//     hornLength = 5.0f;
-//     rodLength = 13.0f;
-
-//     for (size_t i = 0; i < 6; ++i) {
-//         legs[i] = {zero_vec, zero_vec, 0.0f, 0.0f};
-//         B[i] = zero_vec;
-//         P[i] = zero_vec;
-//         q[i] = zero_vec;
-//         l[i] = zero_vec;
-//         H[i] = zero_vec;
-//         sinBeta[i] = 0.0f;
-//         cosBeta[i] = 0.0f;
-//     }
-
-//     base = {{0.0f, 0.0f, 0.0f}, 8.0f, 2.0f / 8.0f};
-//     plat = {{0.0f, 0.0f, 0.0f}, 5.0f, 2.0f / 8.0f};
-// }
 
 // int main() {
 //     CircularStewartPlatform circularPlatform;
@@ -200,7 +16,7 @@
 #include "rlgl.h"
 
 cTewart stewartPlatform;
-Animation animation;
+Animation1 animation;
 
 // TODO: to be added in a structure
 float amplitude = 0.98f;
@@ -277,8 +93,8 @@ void _initParameters(cTewart *sp){
     };
 }
 
-void InitAnimation(Animation *a){
-    *a = (Animation){
+void InitAnimation(Animation1 *a){
+    *a = (Animation1){
         .pct = 0.0f,
         .dtFactor = 0.5f, // animation speed factor
         .animationTypeActive = ROTATE,

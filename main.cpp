@@ -10,19 +10,18 @@
 *   Copyright (c) 2021 Jeffery Myers
 *
 ********************************************************************************************/
+#include "main.h"
 
-#include "raylib.h"
-#include "raymath.h"
+#define SCREEN_WIDTH    (1920)
+#define SCREEN_HEIGHT   ( 800)
 
-#include "imgui.h"
-#include "implot.h"
-#include "rlImGui.h"
-#include "rlImGui.h"
-#include "stewart_platform.h"
-#include <cstdio>
 void Demo_LinePlots();
 void Demo_DigitalPlots();
+void HandleCamera(Camera* camera);
 
+CircularStewartPlatform circularPlatform;
+Animation platformAnimation(&circularPlatform);
+Camera camera = { 0 };
 bool locked = false;
 // utility structure for realtime plot
 struct ScrollingBuffer {
@@ -54,61 +53,54 @@ int main(int argc, char* argv[])
 {
 	// Initialization
 	//--------------------------------------------------------------------------------------
-	int screenWidth = 1280;
-	int screenHeight = 800;
 
     // Define the camera to look into our 3d world
-    Camera3D camera = { 0 };
-    camera.position = (Vector3){ 10.0f, 10.0f, 10.0f }; // Camera position
+    camera.position = (Vector3){ 30.0f, 30.0f, 30.0f }; // Camera position
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 45.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
-    Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
-
-
     // FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
-	SetConfigFlags( FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
-	InitWindow(screenWidth, screenHeight, "c++Tewart Platform Simulation");
+	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "c++Tewart Platform Simulation");
 	SetTargetFPS(60);
 	rlImGuiSetup(true);
     ImPlot::CreateContext();
 
-    DisableCursor();                    // Limit cursor to relative movement inside the window
-	InitStewart(&stewartPlatform);
-    InitAnimation(&ANIM);
+    // DisableCursor();                    // Limit cursor to relative movement inside the window
+	// InitStewart(&stewartPlatform);
+    // InitAnimation(&ANIM);
+    circularPlatform.init();
     // Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
-        if (!locked){
-            UpdateCamera(&camera, CAMERA_FREE);
-        }
-        if (IsKeyPressed('L')) locked = !locked;
+        HandleCamera(&camera);
 
-        if (IsKeyPressed('Z')) camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
 
-        RunAnimation();
 
-        UpdateStewart(THIS.translation, THIS.orientation);
+        // animation runs inside the method and since it is bound to a StewartPlatform object it will call its update method
+        platformAnimation.runAnimation();
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
             BeginMode3D(camera);
-                // Draw frame on base platform
-                _drawFrame(BASE.pos);
-                // Draw stewart platform + platform plate
-                DrawStewart();
-                DrawGrid(50, 1.0f);
+                circularPlatform.draw();
+                platformAnimation.drawPath();
+                DrawGrid(70, 5.0f);
             EndMode3D();
+
             IncrAnimationTime();
+
             DrawText("Stewart Platform Simulation", 10, 10, 20, BLACK);
+
             // start ImGui Content
             rlImGuiBegin();
                 // show ImGui Content
                 bool open = true;
                 ImGui::ShowDemoWindow(&open);
+                ShowStewartGui(&open);
                 // Demo_LinePlots();
                 // Demo_DigitalPlots();
             // end ImGui Content
@@ -198,4 +190,23 @@ void Demo_DigitalPlots() {
         }
         ImPlot::EndPlot();
     }
+}
+
+void HandleCamera(Camera* camera){
+    if (IsKeyPressed('L')) locked = !locked;
+    if (!locked){
+        if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) UpdateCamera(camera, CAMERA_THIRD_PERSON);
+    }else{
+        DrawText("Camera Locked!", 10, 30, 15, RED);
+    }
+    if (IsKeyPressed('Z')) camera->target = circularPlatform.pos;
+}
+
+
+Animation* GetPlatformAnimation(){
+    return &platformAnimation;
+}
+
+Camera* GetCamera(){
+    return &camera;
 }
