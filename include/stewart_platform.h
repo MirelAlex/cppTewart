@@ -1,5 +1,4 @@
-#ifndef STEW
-#define STEW
+#pragma once
 #include "raylib.h"
 #include <cmath> // For sqrtf and powf functions
 #include "rlgl.h"
@@ -163,6 +162,9 @@ public:
             H[i].x = B[i].x + hornLength * cosAlpha * cosBeta[i];
             H[i].y = B[i].y + hornLength * sinAlpha;
             H[i].z = B[i].z + hornLength * cosAlpha * sinBeta[i];
+
+            // calculate servo motor angle
+            legs[i].angle = asinf((H[i].y - B[i].y) / hornLength) * RAD2DEG;
         }
 
     }
@@ -280,88 +282,4 @@ protected:
     }
 };
 
-
-typedef struct{
-    Vector3 pos;
-    float radius;
-    float shaftDistance;
-} Base1;
-
-typedef struct {
-    Vector3 pos;
-    float radius;
-    float anchorDistance;
-} Platform1;
-
-typedef struct
-{
-    Vector3 baseJoint;
-    Vector3 platformJoint;
-    float motorRot;
-    float angle;
-} Legs1;
-
-typedef struct {
-    Vector3 pos;
-    Vector3 translation;
-    Quaternion orientation;
-    float legsLength;
-    float hornLength;
-    float rodLength;
-    Legs1 legs[6];
-    Vector3 B[6];
-    Vector3 P[6];
-    Vector3 q[6];
-    Vector3 l[6];
-    Vector3 H[6];
-    Vector3 T0;
-    float sinBeta[6];
-    float cosBeta[6];
-    Base1 base;
-    Platform1 plat;
-} cTewart;
-
-// cTewart stewartPlatform;
-
-typedef enum {
-    WOBBLE,
-    ROTATE,
-    TILT
-} AnimationType1;
-
-typedef struct {
-    float pct;
-    float dtFactor;
-    AnimationType1 animationTypeActive;
-    bool animationTypeEditMode;
-} Animation1;
-
-// Animation animation;
-
-extern cTewart stewartPlatform;
-extern Animation1 animation;
-
-#define THIS stewartPlatform
-#define BASE (THIS.base)
-#define PLAT (THIS.plat)
-#define zero_vec (Vector3){0.0f, 0.0f, 0.0f}
-#define zero_qua (Quaternion){0.0f, 0.0f, 0.0f, 0.0f}
-#define ANIM animation
-
-
-void InitStewart(cTewart *stewartPlatform);
-
-void InitAnimation(Animation1 *a);
-
-void RunAnimation();
-
-void UpdateStewart(Vector3 translation, Quaternion orientation);
-
-void _drawFrame(Vector3 refPos);
-
-void DrawStewart();
-
-void IncrAnimationTime();
-
 void getCurrentServoAngles(float *angles, int count);
-#endif

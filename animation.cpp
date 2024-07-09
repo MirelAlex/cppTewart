@@ -1,12 +1,11 @@
 #include "animation.h"
 #include <iostream>
-std::vector<Vector3> buffer;
+
 Animation::Animation(StewartPlatform* platform):
     platform(platform),
     translation((Vector3){0.0f,0.0f,0.0f}),
     orientation((Quaternion){0.0f,0.0f,0.0f,1.0f}),
     pct(0.0f),
-    pathBuffer(300),
     dtFactor(1.0f),
     duration(5.0f),
     animationTypeActive(AnimationType::LISSAJOUS),
@@ -71,7 +70,7 @@ void Animation::runAnimation() {
             break;
     }
     // addPathPoint(translation);
-    buffer.push_back(translation);
+    pathBuffer.push_back(translation);
 
     incrAnimationTime();
 }
@@ -92,38 +91,23 @@ void Animation::incrAnimationTime() {
 }
 
 void Animation::drawPath() {
-    // if (pathBuffer.size() > 1) {
-        // Calculate current position along the path based on pct
-        // int currentPointIndex = static_cast<int>(pct * (pathPoints.size() - 1));
-        // Vector3 currentPos = pathPoints[currentPointIndex].position;
-        // Draw path lines
-            rlPushMatrix();
-                rlTranslatef(platform->T0.x, platform->T0.y + 0.05, platform->T0.z);
-                for (size_t i = 0; i < buffer.size()-1; i++) {
-                    DrawLine3D(buffer[i], buffer[i+1], RED);
-                }
-            rlPopMatrix();
-        if (buffer.size() > 1000)
-        {
-            buffer.erase(buffer.begin());
-        }
-
+    // Draw path lines
+        rlPushMatrix();
+            rlTranslatef(platform->T0.x, platform->T0.y + 0.05, platform->T0.z);
+            for (size_t i = 0; i < pathBuffer.size()-1; i++) {
+                DrawLine3D(pathBuffer[i], pathBuffer[i+1], RED);
+            }
         // Draw sphere at the last vertex
-        DrawSphere(Vector3Add(buffer[0],platform->T0), 0.1f, GREEN);
-        // DrawSphere(Vector3Add(pathBuffer.get_last_point().position,platform->T0), 0.4f, BLUE);
+        DrawSphere(pathBuffer[0], 0.1f, GREEN);
+        rlPopMatrix();
 
-        // Draw a sphere or marker at the current position
-        // DrawSphere(currentPos, 0.2f, BLUE);
-    // }
+    if (pathBuffer.size() > 1000)
+    {
+        pathBuffer.erase(pathBuffer.begin());
+    }
+
 }
 
-void Animation::addPathPoint(const Vector3& position) {
-    pathBuffer.push_back(position);
-}
-
-void Animation::clearPath() {
-    pathBuffer.empty();
-}
 
 void Animation::applyTransformationToPlatform(Vector3 T, Quaternion O) {
     this->platform->update(T, O);

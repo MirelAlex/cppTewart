@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include "stewart_platform.h"
 namespace StewartPlots {

@@ -136,8 +136,9 @@ void ShowStewartGui(bool* p_open)
         if (disable_all)
             ImGui::EndDisabled();
 
-        ImGui::PopItemWidth();
     }
+
+    ImGui::PopItemWidth();
     ImGui::End();
 }
 

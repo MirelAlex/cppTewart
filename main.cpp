@@ -15,8 +15,6 @@
 #define SCREEN_WIDTH    (1920)
 #define SCREEN_HEIGHT   ( 800)
 
-void Demo_LinePlots();
-void Demo_DigitalPlots();
 void HandleCamera(Camera* camera);
 
 CircularStewartPlatform circularPlatform;
@@ -26,8 +24,7 @@ bool locked = false;
 
 int main(int argc, char* argv[])
 {
-    // std::vector<StewartPlots::ScrollingBuffer> StewartPlots::angles(6, StewartPlots::ScrollingBuffer(2000)); // Initializing each ScrollingBuffer with a max size of 2000
-	// Initialization
+    // Initialization
 	//--------------------------------------------------------------------------------------
 
     // Define the camera to look into our 3d world
@@ -40,13 +37,10 @@ int main(int argc, char* argv[])
     // FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "c++Tewart Platform Simulation");
-	SetTargetFPS(60);
+	SetTargetFPS(144);
 	rlImGuiSetup(true);
     ImPlot::CreateContext();
 
-    // DisableCursor();                    // Limit cursor to relative movement inside the window
-	// InitStewart(&stewartPlatform);
-    // InitAnimation(&ANIM);
     circularPlatform.init();
     // Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -67,21 +61,17 @@ int main(int argc, char* argv[])
                 DrawGrid(70, 5.0f);
             EndMode3D();
 
-            IncrAnimationTime();
-
             DrawText("Stewart Platform Simulation", 10, 10, 20, BLACK);
 
             // start ImGui Content
             rlImGuiBegin();
-                // show ImGui Content`
+                // show ImGui Content
                 bool open = true;
                 ImGui::ShowDemoWindow(&open);
                 ImPlot::ShowDemoWindow(&open);
                 StewartPlots::ShowStewartPlots(&open);
-				ShowStewartGui(&open);
-                // Demo_LinePlots();
-                // Demo_DigitalPlots();
-            // end ImGui Content
+                ShowStewartGui(&open);
+                // end ImGui Content
             rlImGuiEnd();
 		EndDrawing();
 		//----------------------------------------------------------------------------------
