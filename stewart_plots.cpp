@@ -22,9 +22,11 @@ void StewartPlots::Stewart_RealtimePlots() {
     transl[0].AddPoint(t, GetPlatformAnimation()->platform->translation.x);
     transl[1].AddPoint(t, GetPlatformAnimation()->platform->translation.y);
     transl[2].AddPoint(t, GetPlatformAnimation()->platform->translation.z);
-    orient[0].AddPoint(t, GetPlatformAnimation()->platform->orientation.x);
-    orient[1].AddPoint(t, GetPlatformAnimation()->platform->orientation.y);
-    orient[2].AddPoint(t, GetPlatformAnimation()->platform->orientation.z);
+    Quaternion orientation = GetPlatformAnimation()->platform->orientation;
+    Vector3 rotation = QuaternionToEuler(orientation);
+    orient[0].AddPoint(t, rotation.x);
+    orient[1].AddPoint(t, rotation.y);
+    orient[2].AddPoint(t, rotation.z);
     // orient.AddPoint(t, GetPlatformAnimation()->platform->orientation);
 
 
