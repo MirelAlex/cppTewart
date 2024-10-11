@@ -79,10 +79,6 @@ void ShowStewartGui(bool* p_open)
     if (ImGui::CollapsingHeader("Configuration"))
     {
 
-        static bool disable_all = false; // The Checkbox for that is inside the "Disabled" section at the bottom
-        if (disable_all)
-            ImGui::BeginDisabled();
-
         IMGUI_DEMO_MARKER("Configuration/Camera");
         if (ImGui::TreeNode("Camera"))
         {
@@ -133,14 +129,187 @@ void ShowStewartGui(bool* p_open)
             ImGui::TreePop();
         }
 
-        if (disable_all)
-            ImGui::EndDisabled();
+        if (ImGui::TreeNode("Settings"))
+        {
+            ImGui::SeparatorText("Platform Settings");
+
+            {
+                // IMGUI_DEMO_MARKER("Configuration/Camera/SliderInt, SliderFloat");
+                // static int i1 = 0;
+                // ImGui::SliderInt("slider int", &i1, -1, 3);
+                // ImGui::SameLine(); HelpMarker("CTRL+click to input value.");
+                Animation* anim = GetCurrentAnimatedPlatform();
+                StewartPlatform* plat = anim->getPlatform();
+                ImVec4 Bcolor = ImVec4(plat->base.color.r / 255.0f,
+                                      plat->base.color.g / 255.0f,
+                                      plat->base.color.b / 255.0f,
+                                      plat->base.color.a / 255.0f);
+                ImVec4 Pcolor = ImVec4(plat->plat.color.r / 255.0f,
+                                       plat->plat.color.g / 255.0f,
+                                       plat->plat.color.b / 255.0f,
+                                       plat->plat.color.a / 255.0f);
+
+                ImGui::Checkbox("Show vectors", &plat->drawVectors);
+
+                ImGui::SameLine();
+                static bool check1 = true;
+                ImGui::Checkbox("Show path", &check1);
+                if (check1){
+                    anim->bDrawPath = true;
+                }else{
+                    anim->bDrawPath = false;
+                }
+
+                static bool hexActive = true;
+                ImGui::Checkbox("Hexagonal Platform", &hexActive);
+                if (hexActive){
+                    setCurrentAnimatedHexPlatform();
+                }else{
+                    setCurrentAnimatedCircularPlatform();
+                }
+
+                float vec_pos[] = {plat->pos.x, plat->pos.y, plat->pos.z};
+
+                if(ImGui::SliderFloat3("Position", vec_pos, -100.0f, 100.0f)){
+                    // update camera postion according to sliders value
+                    plat->pos.x = vec_pos[0]; plat->pos.y = vec_pos[1]; plat->pos.z = vec_pos[2];
+                }
+
+                if(ImGui::SliderFloat("Rod Length", &plat->rodLength, 0.0f, 10.0f)){
+                   plat->refreshPlatform();
+                }
+                if(ImGui::SliderFloat("Horn Length", &plat->hornLength, 0.0f, 10.0f)){
+                   plat->refreshPlatform();
+                }
+                if(ImGui::SliderFloat("Platform Radius", &plat->plat.radius, 0.0f, 10.0f)){
+                    plat->refreshPlatform();
+                }
+                if(ImGui::SliderFloat("Base Radius", &plat->base.radius, 0.0f, 10.0f)){
+                    plat->refreshPlatform();
+                }
+
+                if (!hexActive) ImGui::BeginDisabled();
+                    if(ImGui::SliderFloat("Outer plat rad", &plat->platformOuterRadius, 0.0f, 10.0f)){
+                        plat->refreshPlatform();
+                    }
+                    if(ImGui::SliderFloat("Outer base rad", &plat->baseOuterRadius, 0.0f, 10.0f)){
+                        plat->refreshPlatform();
+                    }
+                if (!hexActive) ImGui::EndDisabled();
+
+                if(ImGui::SliderFloat("Anchor distance", &plat->plat.anchorDistance, 0.0f, 10.0f)){
+                    plat->refreshPlatform();
+                }
+                if(ImGui::SliderFloat("Shaft distance", &plat->base.shaftDistance, 0.0f, 10.0f)){
+                    plat->refreshPlatform();
+                }
+                if(ImGui::SliderFloat("Base thickness", &plat->base.thickness, 0.0f, 2.0f)){
+                    plat->refreshPlatform();
+                }
+                if(ImGui::SliderFloat("Plat thickness", &plat->plat.thickness, 0.0f, 2.0f)){
+                    plat->refreshPlatform();
+                }
+
+                if(ImGui::ColorEdit4("Base color", (float*)&Bcolor, ImGuiColorEditFlags_Uint8)){
+                    uint8 r = Bcolor.x * 255;
+                    uint8 g = Bcolor.y * 255;
+                    uint8 b = Bcolor.z * 255;
+                    uint8 a = Bcolor.w * 255;
+                    Color cb = {r, g, b, a};
+                    plat->base.color = cb;
+                }
+                if(ImGui::ColorEdit4("Plat color", (float*)&Pcolor, ImGuiColorEditFlags_Uint8)){
+                    uint8 r = Pcolor.x * 255;
+                    uint8 g = Pcolor.y * 255;
+                    uint8 b = Pcolor.z * 255;
+                    uint8 a = Pcolor.w * 255;
+                    Color cp = {r, g, b, a};
+                    plat->plat.color = cp;
+                }
+
+                if (ImGui::Button("Save Config")) {plat->saveConfig("stewart_config.json");}
+
+
+            }
+            ImGui::TreePop();
+        }
+
+
 
     }
 
     ImGui::PopItemWidth();
     ImGui::End();
 }
+
+// static ColorPicker(Animation *anim){
+
+//     // Generate a default palette. The palette will persist and can be edited.
+//     static bool saved_palette_init = true;
+//     static ImVec4 saved_palette[32] = {};
+//     if (saved_palette_init)
+//     {
+//         for (int n = 0; n < IM_ARRAYSIZE(saved_palette); n++)
+//         {
+//             ImGui::ColorConvertHSVtoRGB(n / 31.0f, 0.8f, 0.8f,
+//                 saved_palette[n].x, saved_palette[n].y, saved_palette[n].z);
+//             saved_palette[n].w = 1.0f; // Alpha
+//         }
+//         saved_palette_init = false;
+//     }
+
+//     static ImVec4 backup_color;
+//     bool open_popup = ImGui::ColorButton("MyColor##3b", color, misc_flags);
+//     ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+//     open_popup |= ImGui::Button("Palette");
+//     if (open_popup)
+//     {
+//         ImGui::OpenPopup("mypicker");
+//         backup_color = color;
+//     }
+//     if (ImGui::BeginPopup("mypicker"))
+//     {
+//         ImGui::Text("MY CUSTOM COLOR PICKER WITH AN AMAZING PALETTE!");
+//         ImGui::Separator();
+//         ImGui::ColorPicker4("##picker", (float*)&color, misc_flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
+//         ImGui::SameLine();
+
+//         ImGui::BeginGroup(); // Lock X position
+//         ImGui::Text("Current");
+//         ImGui::ColorButton("##current", color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40));
+//         ImGui::Text("Previous");
+//         if (ImGui::ColorButton("##previous", backup_color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40)))
+//             color = backup_color;
+//         ImGui::Separator();
+//         ImGui::Text("Palette");
+//         for (int n = 0; n < IM_ARRAYSIZE(saved_palette); n++)
+//         {
+//             ImGui::PushID(n);
+//             if ((n % 8) != 0)
+//                 ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.y);
+
+//             ImGuiColorEditFlags palette_button_flags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip;
+//             if (ImGui::ColorButton("##palette", saved_palette[n], palette_button_flags, ImVec2(20, 20)))
+//                 color = ImVec4(saved_palette[n].x, saved_palette[n].y, saved_palette[n].z, color.w); // Preserve alpha!
+
+//             // Allow user to drop colors into each palette entry. Note that ColorButton() is already a
+//             // drag source by default, unless specifying the ImGuiColorEditFlags_NoDragDrop flag.
+//             if (ImGui::BeginDragDropTarget())
+//             {
+//                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
+//                     memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 3);
+//                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
+//                     memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 4);
+//                 ImGui::EndDragDropTarget();
+//             }
+
+//             ImGui::PopID();
+//         }
+//         ImGui::EndGroup();
+//         ImGui::EndPopup();
+//     }
+// }
+
 
 static void ShowExampleMenuFile()
 {

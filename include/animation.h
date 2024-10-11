@@ -26,9 +26,11 @@ public:
     Animation(StewartPlatform* platform);
     void runAnimation();
     void drawPath();
+    void togglePathDrawing(){ bDrawPath = !bDrawPath;}
+    boolean bDrawPath = false;
 
-    // float getPct() const;
-    // void setPct(float pct);
+    StewartPlatform* getPlatform() const { return platform;}
+    void initPlatform() { platform->init();}
 
     // float getDtFactor() const;
     void setDtFactor(float dtFactor);
@@ -39,10 +41,12 @@ public:
 
     // bool isAnimationTypeEditMode() const;
     // void setAnimationTypeEditMode(bool animationTypeEditMode);
-
-    StewartPlatform* platform; // Pointer to the associated StewartPlatform
+    bool isAnimationPaused() { return !isAnimationRunning; }
+    void setAnimationRunning(bool isRunning) { isAnimationRunning = isRunning; }
+    void toggleAnimationRunning() { isAnimationRunning = !isAnimationRunning; }
 private:
-
+    StewartPlatform* platform; // Pointer to the associated StewartPlatform
+    bool isAnimationRunning = true;
     Vector3 translation;
     Quaternion orientation;
 
@@ -54,8 +58,9 @@ private:
     bool animationTypeEditMode;
 
     std::vector<Vector3> pathBuffer;
-    void addPathPoint(const Vector3& position);
-    void clearPath();
+    void addPathPoint(const Vector3& position){ pathBuffer.push_back(position);}
+    void clearPath(){ pathBuffer.clear();}
+
 
     void applyTransformationToPlatform(Vector3 T, Quaternion O);
     void incrAnimationTime();

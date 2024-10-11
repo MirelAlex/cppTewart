@@ -18,7 +18,11 @@
 void HandleCamera(Camera* camera);
 
 CircularStewartPlatform circularPlatform;
+HexagonalStewartPlatform hexPlatform;
+
 Animation platformAnimation(&circularPlatform);
+Animation hexAnimation(&hexPlatform);
+Animation* currentAnimatedPlatform = &hexAnimation;
 Camera camera = { 0 };
 bool locked = false;
 
@@ -41,24 +45,35 @@ int main(int argc, char* argv[])
 	rlImGuiSetup(true);
     ImPlot::CreateContext();
 
-    circularPlatform.init();
+    platformAnimation.initPlatform();
+    hexAnimation.initPlatform();
+
     // Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
         HandleCamera(&camera);
 
 
+        if (IsKeyPressed(KEY_SPACE)) {
+            currentAnimatedPlatform->toggleAnimationRunning();
+        }
 
         // animation runs inside the method and since it is bound to a StewartPlatform object it will call its update method
-        platformAnimation.runAnimation();
+        currentAnimatedPlatform->runAnimation();
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
             BeginMode3D(camera);
-                circularPlatform.draw();
-                platformAnimation.drawPath();
+            // Disable backface culling to see all faces
+            rlDisableBackfaceCulling();
+                currentAnimatedPlatform->drawPath();
+                currentAnimatedPlatform->getPlatform()->draw();
+
                 DrawGrid(70, 5.0f);
+
+            // Re-enable backface culling for other objects
+            rlEnableBackfaceCulling();
             EndMode3D();
 
             DrawText("Stewart Platform Simulation", 10, 10, 20, BLACK);
@@ -73,6 +88,7 @@ int main(int argc, char* argv[])
                 ShowStewartGui(&open);
                 // end ImGui Content
             rlImGuiEnd();
+
 		EndDrawing();
 		//----------------------------------------------------------------------------------
 	}
@@ -98,8 +114,25 @@ void HandleCamera(Camera* camera){
 }
 
 
-Animation* GetPlatformAnimation(){
-    return &platformAnimation;
+
+Animation* GetCurrentAnimatedPlatform(){
+    return currentAnimatedPlatform;
+}
+
+void toggleCurrentAnimatedPlatform(){
+    if (currentAnimatedPlatform == &platformAnimation){
+        currentAnimatedPlatform = &hexAnimation;
+    }else{
+        currentAnimatedPlatform = &platformAnimation;
+    }
+}
+
+void setCurrentAnimatedHexPlatform(){
+    currentAnimatedPlatform = &hexAnimation;
+}
+
+void setCurrentAnimatedCircularPlatform(){
+    currentAnimatedPlatform = &platformAnimation;
 }
 
 Camera* GetCamera(){

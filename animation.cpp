@@ -8,19 +8,20 @@ Animation::Animation(StewartPlatform* platform):
     pct(0.0f),
     dtFactor(1.0f),
     duration(5.0f),
-    animationTypeActive(AnimationType::LISSAJOUS),
+    animationTypeActive(AnimationType::WOBBLE),
     animationTypeEditMode(false),
     animationShouldCycle(true)
     {}
 
 void Animation::runAnimation() {
+    if (!isAnimationRunning) return;
     float b = 0;
     float amplitude = 0.98;
 
     switch (animationTypeActive)
     {
         case AnimationType::WOBBLE:
-            setAnimationDuration(2);
+            setAnimationDuration(15);
             // wobble effect
             b = pct * 2.0f * PI;
             translation.x = cos(-b) * 2.0f * amplitude;
@@ -69,10 +70,11 @@ void Animation::runAnimation() {
         default:
             break;
     }
-    // addPathPoint(translation);
-    pathBuffer.push_back(translation);
 
     incrAnimationTime();
+
+    // draw path if enabled
+    addPathPoint(translation);
 }
 
 void Animation::incrAnimationTime() {
@@ -91,18 +93,21 @@ void Animation::incrAnimationTime() {
 }
 
 void Animation::drawPath() {
+    if (!bDrawPath) return;
     // Draw path lines
-        rlPushMatrix();
-            rlTranslatef(platform->T0.x, platform->T0.y + 0.05, platform->T0.z);
-            for (size_t i = 0; i < pathBuffer.size()-1; i++) {
-                DrawLine3D(pathBuffer[i], pathBuffer[i+1], RED);
-            }
-        // Draw sphere at the last vertex
-        DrawSphere(pathBuffer[0], 0.1f, GREEN);
-        rlPopMatrix();
+    rlPushMatrix();
+        rlTranslatef(platform->pos.x + platform->T0.x, platform->pos.y + platform->T0.y + 0.2, platform->pos.z + platform->T0.z);
+        for (size_t i = 0; i < pathBuffer.size()-1; i++) {
+            DrawLine3D(pathBuffer[i], pathBuffer[i+1], RED);
+        }
+    // Draw sphere at the last vertex
+    DrawSphere(pathBuffer[0], 0.1f, GREEN);
+    rlPopMatrix();
 
+    // Limit path buffer size
     if (pathBuffer.size() > 1000)
     {
+        // remove first element
         pathBuffer.erase(pathBuffer.begin());
     }
 
@@ -136,6 +141,7 @@ void Animation::setDtFactor(float dtFactor) {
 
 void Animation::setAnimationTypeActive(AnimationType animationTypeActive) {
     this->animationTypeActive = animationTypeActive;
+    clearPath();
 }
 
 void Animation::setAnimationDuration(float duration){

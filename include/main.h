@@ -14,5 +14,10 @@
 #include "stewart_plots.h"
 
 // debug interfaces
-Animation* GetPlatformAnimation();
+
+Animation* GetCurrentAnimatedPlatform();
+void toggleCurrentAnimatedPlatform();
+void setCurrentAnimatedCircularPlatform();
+void setCurrentAnimatedHexPlatform();
+
 Camera* GetCamera();

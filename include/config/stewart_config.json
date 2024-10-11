@@ -1,0 +1,45 @@
+{
+    "base": {
+        "color": [
+            255,
+            195,
+            0,
+            185
+        ],
+        "radius": 6.539000034332275,
+        "shaftDistance": 1.2000000476837158,
+        "thickness": 0.20000000298023224
+    },
+    "baseOuterRadius": 6.179999828338623,
+    "drawVectors": false,
+    "hornLength": 2.691999912261963,
+    "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+    ],
+    "plat": {
+        "anchorDistance": 0.871999979019165,
+        "color": [
+            34,
+            136,
+            242,
+            67
+        ],
+        "radius": 3.7179999351501465,
+        "thickness": 0.20000000298023224
+    },
+    "platformOuterRadius": 3.563999891281128,
+    "pos": [
+        0.0,
+        0.0,
+        0.0
+    ],
+    "rodLength": 8.564000129699707,
+    "translation": [
+        0.0,
+        0.0,
+        0.0
+    ]
+}
